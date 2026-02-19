@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Memoria de Trabajo</title>
+
+  <link rel="icon" href="iconos/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="iconos/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="iconos/favicon-16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="iconos/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="iconos/android-chrome-192x192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="iconos/android-chrome-512x512.png">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="light">
+
+<div class="contenedor">
+
+  <!-- HEADER -->
+  <div class="header">
+    <img src="logo3_sf.png" class="logo" alt="logo">
+    <div class="header-text">
+      <h1>Entrenamiento Memoria de Trabajo</h1>
+
+      <div class="config-actual">
+        <span id="configTexto"></span>
+        <button id="btnToggleConfig" class="btn-principal">Configuración</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL CONFIG -->
+  <div id="configPanel" class="config-box oculto">
+    <div class="config-grid">
+
+      <div class="campo">
+        <label>Tiempo total (segundos)</label>
+        <input id="tiempoTotal" type="number" min="10" max="3600" step="1" inputmode="numeric">
+      </div>
+
+      <div class="campo">
+        <label>Largo secuencia</label>
+        <input id="longitud" type="number" min="0" max="20" step="1" inputmode="numeric">
+      </div>
+
+      <div class="campo">
+        <label>Cantidad colores</label>
+        <input id="cantColores" type="number" min="3" max="10" step="1" inputmode="numeric">
+      </div>
+
+      <div class="campo">
+        <label>Cambio secuencia (seg)</label>
+        <input id="tiempoCambio" type="number" min="1" max="10" step="1" inputmode="numeric">
+      </div>
+
+      <div class="campo">
+        <label>Fondo</label>
+        <select id="modoFondo">
+          <option value="light">Blanco</option>
+          <option value="dark">Negro</option>
+        </select>
+      </div>
+
+      <div class="campo">
+        <label>
+          <input id="permitirRepetidos" type="checkbox">
+          Permitir repetición
+        </label>
+      </div>
+
+      <div class="campo">
+        <label>
+          <input id="incremental" type="checkbox">
+          Secuencia incremental
+        </label>
+      </div>
+    </div>
+
+    <div class="botones">
+      <button id="btnGuardarConfig" class="btn-principal">Guardar configuración</button>
+    </div>
+  </div>
+
+  <!-- CONTROLES -->
+  <div class="controles">
+    <label>Nombre</label>
+    <input id="nombre" maxlength="20" placeholder="Anonimo">
+    <button id="btnAccion" class="btn-principal">Iniciar</button>
+  </div>
+
+  <!-- OVERLAY COUNTDOWN -->
+  <div id="overlayCountdown" class="overlay oculto">
+    <div>
+      <div id="countdownNumero">3</div>
+      <div id="countdownTexto" class="countdown-texto">Prepararse…</div>
+    </div>
+  </div>
+
+  <!-- HUD -->
+  <div class="hud">
+    Tiempo: <span id="tiempo">0</span> |
+    Puntaje: <span id="aciertos">0</span> |
+    Secuencia máxima: <span id="maximo">0</span>
+  </div>
+
+  <!-- JUEGO -->
+  <div class="juego">
+    <h3>Secuencia a replicar</h3>
+    <div class="single-wrap">
+      <div id="cuadroSecuencia" class="cuadro single"></div>
+    </div>
+
+    <h3>Tu secuencia</h3>
+    <div class="single-wrap">
+      <div id="cuadroJugador" class="cuadro single"></div>
+    </div>
+
+    <h3>Colores disponibles</h3>
+    <div id="tableroColores" class="fila"></div>
+  </div>
+
+  <!-- CONTROL RANKING -->
+  <div class="ranking-control">
+    <label>
+      <input type="checkbox" id="chkRanking">
+      Mostrar últimos 10
+    </label>
+  </div>
+
+  <div id="rankingContainer">
+    <h3>Últimos 10</h3>
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Puntaje</th>
+          <th>Secuencia máxima</th>
+        </tr>
+      </thead>
+      <tbody id="ranking"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
