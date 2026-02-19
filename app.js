@@ -413,7 +413,7 @@
 
     largoActual = config.incremental ? 2 : config.longitud;
 
-    btnAccion.innerText = "Detener";
+    btnAccion.innerText = "Finalizar";
     btnToggleConfig.disabled = true;
     nombreInput.disabled = true;
 
