@@ -148,7 +148,7 @@ input, select{
   margin:10px 0 14px 0;
   flex-wrap:wrap;
   align-items:center;
-  justify-content:center; /* ✅ centra la grilla/fila */
+  justify-content:center; /* centra grilla */
 }
 
 .cuadro{
@@ -163,6 +163,8 @@ input, select{
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
+
+  transition: transform 0.12s, box-shadow 0.12s, border-color 0.12s;
 }
 
 body.dark .cuadro{
@@ -190,6 +192,19 @@ body.dark .cuadro{
   width: clamp(90px, 26vw, 150px);
   height: clamp(90px, 26vw, 150px);
   border-width: 4px;
+}
+
+/* ✅ RESALTADO TURNO JUGADOR */
+.cuadro.turno-jugador{
+  border-color: #7555E5 !important;
+  box-shadow: 0 0 0 4px rgba(179,108,255,0.25), 0 0 18px rgba(179,108,255,0.35);
+  animation: glowPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes glowPulse{
+  0%{ transform: scale(1); }
+  50%{ transform: scale(1.02); }
+  100%{ transform: scale(1); }
 }
 
 .tabla{

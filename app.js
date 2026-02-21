@@ -53,11 +53,11 @@
   ];
 
   const CONFIG_DEFAULT = {
-    tiempoTotal: 30,        // seg
-    longitud: 4,            // 0 => incremental
-    incremental: false,
+    tiempoTotal: 45,        // seg
+    longitud: 0,            // 0 => incremental
+    incremental: true,
     cantColores: 6,
-    tiempoCambio: 1,        // seg ENTEROS
+    tiempoCambio: 2,        // seg ENTEROS
     permitirRepetidos: false,
     modoFondo: "light"
   };
@@ -201,6 +201,52 @@
   }
 
   /* =========================
+     SONIDO FIN DE TIEMPO (WebAudio)
+  ========================= */
+  let audioCtx = null;
+
+  function ensureAudio() {
+    if (audioCtx) return audioCtx;
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return null;
+    audioCtx = new Ctx();
+    return audioCtx;
+  }
+
+function beepFinTiempo() {
+  const ctx = ensureAudio();
+  if (!ctx) return;
+
+  if (ctx.state === "suspended") {
+    ctx.resume().catch(() => {});
+  }
+
+  const now = ctx.currentTime;
+
+  function beep(start, freq, dur) {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(freq, start);
+
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.exponentialRampToValueAtTime(0.25, start + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(start);
+    osc.stop(start + dur);
+  }
+
+  // dos tonos
+  beep(now, 880, 3.0);
+  beep(now + 0.4, 660, 3.0);
+}
+
+  /* =========================
      JUEGO
   ========================= */
   let jugando = false;
@@ -218,8 +264,8 @@
 
   let largoActual = 0;        // incremental (largo objetivo de la ronda)
   let aciertos = 0;
-  let ultimoCorrecto = 0;     // ✅ largo de la última secuencia completada OK
-  let maximo = 0;             // ✅ máximo histórico de ultimoCorrecto
+  let ultimoCorrecto = 0;
+  let maximo = 0;
 
   function shuffle(arr) {
     const a = [...arr];
@@ -262,9 +308,14 @@
     return new Promise(res => setTimeout(res, ms));
   }
 
+  function setTurnoJugador(activo) {
+    cuadroJugador.classList.toggle("turno-jugador", !!activo);
+  }
+
   async function mostrarSecuencia() {
     mostrandoSecuencia = true;
     fase = "mostrando";
+    setTurnoJugador(false);
     resetCuadros();
 
     const t = config.tiempoCambio * 1000;
@@ -280,6 +331,9 @@
     mostrandoSecuencia = false;
     fase = "respuesta";
     inputIndex = 0;
+
+    // ✅ ahora es el turno del jugador
+    setTurnoJugador(true);
   }
 
   let clearJugadorTO = null;
@@ -303,31 +357,30 @@
     const ok = (color === esperado);
     inputIndex++;
 
+    const pausa = config.tiempoCambio * 1000;
+
     if (!ok) {
-      // ✅ Error: NO actualizar maximo/ultimoCorrecto, y NO incrementar largoActual.
-      // Repetimos el mismo largo en incremental (largoActual queda igual).
+      // error: no incrementa
       inputIndex = 0;
-	  const pausa = config.tiempoCambio * 1000;
-	  setTimeout(() => iniciarRonda(), pausa);
-	  
+      setTurnoJugador(false); // va a empezar nueva secuencia
+      setTimeout(() => iniciarRonda(), pausa);
       return;
     }
 
     if (inputIndex === secuencia.length) {
-      // ✅ Completó toda la secuencia => recién acá cuenta como "última correcta"
+      // completó
       aciertos++;
 
-      ultimoCorrecto = secuencia.length;      // ✅ última completada correcta
-      maximo = Math.max(maximo, ultimoCorrecto); // ✅ máximo histórico
+      ultimoCorrecto = secuencia.length;
+      maximo = Math.max(maximo, ultimoCorrecto);
 
       aciertosSpan.innerText = String(aciertos);
       maximoSpan.innerText = String(maximo);
 
-      // ✅ Incremental: solo avanza si completó correctamente
       if (config.incremental) largoActual++;
 
       inputIndex = 0;
-      const pausa = config.tiempoCambio * 1000;
+      setTurnoJugador(false); // va a empezar nueva secuencia
       setTimeout(() => iniciarRonda(), pausa);
     }
   }
@@ -338,6 +391,7 @@
 
     resetCuadros();
     fase = "idle";
+    setTurnoJugador(false);
 
     if (config.incremental && largoActual < 2) largoActual = 2;
 
@@ -361,7 +415,11 @@
       const restante = Math.max(0, Math.ceil((tiempoFin - Date.now()) / 1000));
       tiempoSpan.innerText = String(restante);
 
-      if (restante <= 0) detenerJuego(true);
+      if (restante <= 0) {
+        // ✅ beep de fin de tiempo
+        beepFinTiempo();
+        detenerJuego(true);
+      }
     }, 250);
   }
 
@@ -400,12 +458,18 @@
   function iniciarJuego() {
     if (jugando) return;
 
+    // “Desbloquea” audio en algunos navegadores al primer click
+    ensureAudio();
+    if (audioCtx && audioCtx.state === "suspended") {
+      audioCtx.resume().catch(() => {});
+    }
+
     jugando = true;
     fase = "idle";
     inputIndex = 0;
 
     aciertos = 0;
-    ultimoCorrecto = 0; // ✅
+    ultimoCorrecto = 0;
     maximo = 0;
 
     aciertosSpan.innerText = "0";
@@ -419,6 +483,7 @@
 
     prepararColoresPartida();
     resetCuadros();
+    setTurnoJugador(false);
 
     iniciarCuentaRegresiva(() => {
       iniciarTimer();
@@ -444,6 +509,7 @@
     nombreInput.disabled = false;
 
     resetCuadros();
+    setTurnoJugador(false);
 
     if (guardar) agregarRanking(aciertos, maximo);
   }
@@ -503,4 +569,5 @@
   aplicarVisibilidadRanking();
 
   resetCuadros();
+  setTurnoJugador(false);
 })();
