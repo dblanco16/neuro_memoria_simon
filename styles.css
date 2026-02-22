@@ -286,3 +286,67 @@ body.dark .tabla th, body.dark .tabla td{
   50%{ transform:scale(1.2); opacity:1; }
   100%{ transform:scale(1); }
 }
+
+/* ===== INSTAGRAM DEBAJO DEL LOGO ===== */
+
+.logo-wrap{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+.instagram-mini{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin-top:6px;
+  font-size:14px;
+}
+
+.insta-icon{
+  width:18px;
+  height:18px;
+}
+
+.instagram-mini a{
+  text-decoration:none;
+  font-weight:600;
+  color:#B36CFF;
+}
+
+.instagram-mini a:hover{
+  color:#7555E5;
+}
+
+
+/* ===== FOOTER ===== */
+
+.footer{
+  margin-top:40px;
+  padding:20px 10px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
+  font-size:16px;
+  border-top:1px solid rgba(0,0,0,0.15);
+}
+
+body.dark .footer{
+  border-top:1px solid rgba(255,255,255,0.2);
+}
+
+.insta-icon-footer{
+  width:22px;
+  height:22px;
+}
+
+.footer a{
+  text-decoration:none;
+  font-weight:600;
+  color:#B36CFF;
+}
+
+.footer a:hover{
+  color:#7555E5;
+}
